@@ -1,0 +1,451 @@
+
+=== C:\Users\lucia\OneDrive\Escritorio\finaldevops\Archivo descargable Vehículos API Rest_S8\Sucursal_vehiculos\src\main\java\com\vehiculos\VehiculosRest\controllers\InicioController.java ===
+package com.vehiculos.VehiculosRest.controllers;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Calendar;
+
+@RestController
+public class InicioController {
+
+
+    private String version = "1.0";
+    @GetMapping("/")
+    public String comienzo(){
+        Calendar calendario = Calendar.getInstance();
+        int anio = calendario.get(Calendar.YEAR);
+        return "API funcionando  -  Version " + version   +  " -   " + anio ;
+    }
+
+}
+
+
+=== C:\Users\lucia\OneDrive\Escritorio\finaldevops\Archivo descargable Vehículos API Rest_S8\Sucursal_vehiculos\src\main\java\com\vehiculos\VehiculosRest\controllers\VehiculoController.java ===
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.vehiculos.VehiculosRest.controllers;
+
+import com.vehiculos.VehiculosRest.models.VehiculoModel;
+import com.vehiculos.VehiculosRest.services.VehiculoService;
+import com.vehiculos.VehiculosRest.services.VehiculoService.UserNotFoundException;
+import java.util.ArrayList;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ *
+ * @author Villacura
+ */
+@RestController
+@RequestMapping("/vehiculos")
+public class VehiculoController {
+    
+    
+    @Autowired
+    private VehiculoService vehiculoService;
+    
+    @GetMapping
+    public ArrayList<VehiculoModel> getAutos(){
+        return this.vehiculoService.getVehiculos();
+    }
+   
+}
+
+
+=== C:\Users\lucia\OneDrive\Escritorio\finaldevops\Archivo descargable Vehículos API Rest_S8\Sucursal_vehiculos\src\main\java\com\vehiculos\VehiculosRest\models\VehiculoModel.java ===
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.vehiculos.VehiculosRest.models;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+
+/**
+ *
+ * @author Villacura
+ */
+@Entity
+@Table(name = "vehiculos")
+public class VehiculoModel {
+        @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column
+    private String marca;
+
+    @Column
+    private String modelo;
+
+    @Column
+    private Integer ano;
+    
+    @Column
+    private String color;
+        
+    @Column
+    private String tipo_combustible;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getMarca() {
+        return marca;
+    }
+
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+
+    public String getModelo() {
+        return modelo;
+    }
+
+    public void setModelo(String modelo) {
+        this.modelo = modelo;
+    }
+
+    public Integer getAno() {
+        return ano;
+    }
+
+    public void setAno(Integer ano) {
+        this.ano = ano;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getTipo_combustible() {
+        return tipo_combustible;
+    }
+
+    public void setTipo_combustible(String tipo_combustible) {
+        this.tipo_combustible = tipo_combustible;
+    }
+
+    
+}
+
+
+=== C:\Users\lucia\OneDrive\Escritorio\finaldevops\Archivo descargable Vehículos API Rest_S8\Sucursal_vehiculos\src\main\java\com\vehiculos\VehiculosRest\repositories\IVehiculoRepository.java ===
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
+ */
+package com.vehiculos.VehiculosRest.repositories;
+
+import com.vehiculos.VehiculosRest.models.VehiculoModel;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+/**
+ *
+ * @author Villacura
+ */
+public interface IVehiculoRepository extends JpaRepository<VehiculoModel,Long>{
+    
+}
+
+
+=== C:\Users\lucia\OneDrive\Escritorio\finaldevops\Archivo descargable Vehículos API Rest_S8\Sucursal_vehiculos\src\main\java\com\vehiculos\VehiculosRest\services\VehiculoService.java ===
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.vehiculos.VehiculosRest.services;
+import com.vehiculos.VehiculosRest.models.VehiculoModel;
+import com.vehiculos.VehiculosRest.repositories.IVehiculoRepository;
+import java.util.ArrayList;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+
+/**
+ *
+ * @author Villacura
+ */
+@Service
+public class VehiculoService {
+    @Autowired
+    IVehiculoRepository autoRepository;
+    
+    
+    public ArrayList<VehiculoModel> getVehiculos(){
+        return (ArrayList<VehiculoModel>)  autoRepository.findAll();
+    }
+        
+        
+        
+    public VehiculoModel saveAuto(VehiculoModel auto){
+        return autoRepository.save(auto);
+    }
+
+    public Optional<VehiculoModel> getbyId(Long id){
+        return autoRepository.findById(id);
+    }
+    
+    
+        public VehiculoModel updateById(VehiculoModel request , Long id) {
+        Optional<VehiculoModel> optionalAuto = autoRepository.findById(id);
+
+        if (optionalAuto.isPresent()) {
+            VehiculoModel auto = optionalAuto.get();
+            auto.setMarca(request.getMarca());
+            auto.setModelo(request.getModelo());
+            auto.setAno(request.getAno());
+            auto.setColor(request.getColor());
+            auto.setTipo_combustible(request.getTipo_combustible());
+
+            // Guardar los cambios en la base de datos
+            autoRepository.save(auto);
+
+            return auto;
+        } else {
+            throw new UserNotFoundException("El vehiculo que intenta eliminar no existe con el id " + id);
+        }
+    }
+
+        
+    public void deleteAuto(Long id) {
+        Optional<VehiculoModel> optionalAuto = autoRepository.findById(id);
+
+        if (optionalAuto.isPresent()) {
+            try {
+                autoRepository.deleteById(id);
+            } catch (Exception e) {
+                // Manejar cualquier excepciÃ³n lanzada durante la eliminaciÃ³n
+                throw new RuntimeException("El vehiculo que intenta eliminar no existe con el id " + id);
+            }
+        } else {
+            throw new UserNotFoundException("El vehiculo que intenta eliminar no existe con el id " + id);
+        }
+    }
+    
+        
+    public class UserNotFoundException extends RuntimeException {
+        public UserNotFoundException(String message) {
+            super(message);
+        }
+    }
+        
+    
+
+}
+
+
+=== C:\Users\lucia\OneDrive\Escritorio\finaldevops\Archivo descargable Vehículos API Rest_S8\Sucursal_vehiculos\src\main\java\com\vehiculos\VehiculosRest\ServletInitializer.java ===
+package com.vehiculos.VehiculosRest;
+
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+
+public class ServletInitializer extends SpringBootServletInitializer {
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(VehiculosRestApplication.class);
+    }
+
+}
+
+
+=== C:\Users\lucia\OneDrive\Escritorio\finaldevops\Archivo descargable Vehículos API Rest_S8\Sucursal_vehiculos\src\main\java\com\vehiculos\VehiculosRest\VehiculosRestApplication.java ===
+package com.vehiculos.VehiculosRest;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class VehiculosRestApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(VehiculosRestApplication.class, args);
+	}
+}
+
+
+=== C:\Users\lucia\OneDrive\Escritorio\finaldevops\Archivo descargable Vehículos API Rest_S8\Sucursal_vehiculos\src\main\java\Swagger\SwaggerConfigurations.java ===
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package Swagger;
+
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.models.OpenAPI;
+import org.springframework.context.annotation.Configuration;
+
+
+@Configuration
+@OpenAPIDefinition
+/**
+ *
+ * @author Villacura
+ */
+public class SwaggerConfigurations {
+    
+    
+    public OpenAPI api(){
+        return new OpenAPI();
+    }
+    
+    
+}
+
+
+=== C:\Users\lucia\OneDrive\Escritorio\finaldevops\Archivo descargable Vehículos API Rest_S8\Sucursal_vehiculos\src\test\java\com\vehiculos\VehiculosRest\VehiculosRestApplicationTests.java ===
+package com.vehiculos.VehiculosRest;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class VehiculosRestApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
+
+
+=== C:\Users\lucia\OneDrive\Escritorio\finaldevops\Archivo descargable Vehículos API Rest_S8\Sucursal_vehiculos\nb-configuration.xml ===
+<?xml version="1.0" encoding="UTF-8"?>
+<project-shared-configuration>
+    <!--
+This file contains additional configuration written by modules in the NetBeans IDE.
+The configuration is intended to be shared among all the users of project and
+therefore it is assumed to be part of version control checkout.
+Without this configuration present, some functionality in the IDE may be limited or fail altogether.
+-->
+    <properties xmlns="http://www.netbeans.org/ns/maven-properties-data/1">
+        <!--
+Properties that influence various parts of the IDE, especially code formatting and the like. 
+You can copy and paste the single properties, into the pom.xml file and the IDE will pick them up.
+That way multiple projects can share the same settings (useful for formatting rules for example).
+Any value defined here will override the pom.xml file value but is only applicable to the current project.
+-->
+        <org-netbeans-modules-maven-j2ee.netbeans_2e_hint_2e_j2eeVersion>1.8-web</org-netbeans-modules-maven-j2ee.netbeans_2e_hint_2e_j2eeVersion>
+    </properties>
+</project-shared-configuration>
+
+
+=== C:\Users\lucia\OneDrive\Escritorio\finaldevops\Archivo descargable Vehículos API Rest_S8\Sucursal_vehiculos\pom.xml ===
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.4</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.vehiculos</groupId>
+	<artifactId>VehiculosRest</artifactId>
+	<version>1.0</version>
+	<packaging>war</packaging>
+	<name>VehiculosRest</name>
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                    <version>2.5.0</version>
+                </dependency>
+            
+            
+            
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	 <dependency>
+	  <groupId>io.swagger.core.v3</groupId>
+	  <artifactId>swagger-annotations-jakarta</artifactId>
+	  <version>2.2.21</version>
+	  <type>jar</type>
+	 </dependency>
+	</dependencies>
+
+	<build>
+	    <finalName>vehiculosBuild</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
